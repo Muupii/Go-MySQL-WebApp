@@ -6,9 +6,6 @@ import (
 	"./gormConnect"
 )
 
-
-
-
 func main(){
 	db := gormConnect.ConnectDB()
 	db.CreateTable(&models.User{}) //&は変数のアドレスを取得している
