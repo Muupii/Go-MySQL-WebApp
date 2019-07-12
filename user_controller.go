@@ -29,13 +29,13 @@ type FormData struct {
 func UserIndex(c web.C, w http.ResponseWriter, r *http.Request) {
 	Users := []models.User{} // [] はスライスを作るときに使う。[]int{1, 3, 5} だったら[1 3 5]のスライスの作成。
 	db.Find(&Users)          // SELECT * FROM users;
-	tpl = template.Must(template.ParseFiles("view/user/index.html"))
+	tpl = template.Must(template.ParseFiles("view/user/index.tpl"))
 	tpl.Execute(w, Users)
 }
 
-// UserNew は
+// UserNew はテーブルに新しいデータを登録できるページの表示
 func UserNew(c web.C, w http.ResponseWriter, r *http.Request) {
-	tpl = template.Must(template.ParseFiles("view/user/new.html"))
+	tpl = template.Must(template.ParseFiles("view/user/new.tpl"))
 	tpl.Execute(w, FormData{models.User{}, ""})
 }
 
@@ -48,7 +48,7 @@ func UserCreate(c web.C, w http.ResponseWriter, r *http.Request) {
 		for _, errInfo := range errs {
 			Mess += fmt.Sprint(errInfo.Error)
 		}
-		tpl = template.Must(template.ParseFiles("view/user/new.html"))
+		tpl = template.Must(template.ParseFiles("view/user/new.tpl"))
 		tpl.Execute(w, FormData{User, Mess})
 	} else {
 		db.Create(&User)
@@ -59,16 +59,16 @@ func UserCreate(c web.C, w http.ResponseWriter, r *http.Request) {
 // UserEdit はuserテーブルの編集
 func UserEdit(c web.C, w http.ResponseWriter, r *http.Request) {
 	User := models.User{}
-	User.Id, _ = strconv.ParseInt(c.URLParams["id"], 10, 64)
+	User.ID, _ = strconv.ParseInt(c.URLParams["id"], 10, 64)
 	db.Find(&User)
-	tpl = template.Must(template.ParseFiles("view/user/edit.html"))
+	tpl = template.Must(template.ParseFiles("view/user/edit.tpl"))
 	tpl.Execute(w, FormData{User, ""})
 }
 
 // UserUpdate は全フィールドの更新
 func UserUpdate(c web.C, w http.ResponseWriter, r *http.Request) {
 	User := models.User{}
-	User.Id, _ = strconv.ParseInt(c.URLParams["id"], 10, 64)
+	User.ID, _ = strconv.ParseInt(c.URLParams["id"], 10, 64)
 	db.Find(&User)
 	User.Name = r.FormValue("Name")
 	if err := models.UserValidate(User); err != nil {
@@ -77,7 +77,7 @@ func UserUpdate(c web.C, w http.ResponseWriter, r *http.Request) {
 		for _, errInfo := range errs {
 			Mess += fmt.Sprint(errInfo.Error)
 		}
-		tpl = template.Must(template.ParseFiles("view/user/edit.html"))
+		tpl = template.Must(template.ParseFiles("view/user/edit.tpl"))
 		tpl.Execute(w, FormData{User, Mess})
 	} else {
 		db.Save(&User) // UPDATE users SET name=Name
@@ -88,7 +88,7 @@ func UserUpdate(c web.C, w http.ResponseWriter, r *http.Request) {
 // UserDelete はテーブルからデータを削除する
 func UserDelete(c web.C, w http.ResponseWriter, r *http.Request) {
 	User := models.User{}
-	User.Id, _ = strconv.ParseInt(c.URLParams["id"], 10, 64)
+	User.ID, _ = strconv.ParseInt(c.URLParams["id"], 10, 64)
 	db.Delete(&User)
 	http.Redirect(w, r, "/user/index", 301)
 }

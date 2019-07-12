@@ -2,17 +2,15 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Hello Golang</title>
 </head>
 <body>
 
     <p>User Index</p>
-    
+    {{.}}
     {{range .}}
     
-    <a href="/user/edit/{{.Id}}">{{.Name}}</a>
+    <a href="/user/edit/{{.ID}}">{{.Name}}</a>
 
     {{end}}
     
