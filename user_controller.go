@@ -1,114 +1,121 @@
 package main
 
 import (
-    "github.com/zenazn/goji/web"
-    "github.com/wcl48/valval"
+	"github.com/wcl48/valval"
+	"github.com/zenazn/goji/web"
 
-    "net/http"
-    "encoding/base64"
-    "strings"
-    "html/template"
-    "./db/models"
-    "fmt"
+	"encoding/base64"
+	"fmt"
+	"html/template"
+	"net/http"
 	"strconv"
+	"strings"
+
+	"./db/models"
 )
 
-// ベーシック認証のIDとパスワード
+// Password とIDの設定。ベーシック認証用。
 const Password = "user:user"
 
 var tpl *template.Template
 
-type FormData struct{
-    User models.User
-    Mess string
+// FormData はバリデーションエラーを画面に表示するために使うuserモデルとエラーメッセージを持つ構造体
+type FormData struct {
+	User models.User
+	Mess string
 }
 
+// UserIndex はusersテーブルのデータ一覧を出す
 func UserIndex(c web.C, w http.ResponseWriter, r *http.Request) {
-	Users := [] models.User{}
-	db := 
-    db.Find(&Users)
-    tpl = template.Must(template.ParseFiles("view/user/index.html"))
-    tpl.Execute(w,Users)
+	Users := []models.User{} // [] はスライスを作るときに使う。[]int{1, 3, 5} だったら[1 3 5]のスライスの作成。
+	db.Find(&Users)          // SELECT * FROM users;
+	tpl = template.Must(template.ParseFiles("view/user/index.html"))
+	tpl.Execute(w, Users)
 }
 
-func UserNew(c web.C, w http.ResponseWriter, r *http.Request){
-    tpl = template.Must(template.ParseFiles("view/user/new.html"))
-    tpl.Execute(w,FormData{models.User{}, ""})    
+// UserNew は
+func UserNew(c web.C, w http.ResponseWriter, r *http.Request) {
+	tpl = template.Must(template.ParseFiles("view/user/new.html"))
+	tpl.Execute(w, FormData{models.User{}, ""})
 }
 
-func UserCreate(c web.C, w http.ResponseWriter, r *http.Request){
-    User := models.User{Name: r.FormValue("Name")}
-    if err := models.UserValidate(User); err != nil {
-        var Mess string
-        errs := valval.Errors(err)
-        for _, errInfo := range errs {
-            Mess += fmt.Sprint(errInfo.Error)
-        }
-        tpl = template.Must(template.ParseFiles("view/user/new.html"))
-        tpl.Execute(w,FormData{User, Mess})    
-    } else {
-        db.Create(&User)    
-        http.Redirect(w, r, "/user/index", 301)
-    }
+// UserCreate は新しいusersテーブルに新しいデータをinsertする
+func UserCreate(c web.C, w http.ResponseWriter, r *http.Request) {
+	User := models.User{Name: r.FormValue("Name")}
+	if err := models.UserValidate(User); err != nil {
+		var Mess string
+		errs := valval.Errors(err)
+		for _, errInfo := range errs {
+			Mess += fmt.Sprint(errInfo.Error)
+		}
+		tpl = template.Must(template.ParseFiles("view/user/new.html"))
+		tpl.Execute(w, FormData{User, Mess})
+	} else {
+		db.Create(&User)
+		http.Redirect(w, r, "/user/index", 301)
+	}
 }
 
-func UserEdit(c web.C, w http.ResponseWriter, r *http.Request){
-    User := models.User{}
-    User.Id, _ = strconv.ParseInt(c.URLParams["id"], 10, 64)
-    db.Find(&User)
-    tpl = template.Must(template.ParseFiles("view/user/edit.html"))
-    tpl.Execute(w,FormData{User, ""})    
+// UserEdit はuserテーブルの編集
+func UserEdit(c web.C, w http.ResponseWriter, r *http.Request) {
+	User := models.User{}
+	User.Id, _ = strconv.ParseInt(c.URLParams["id"], 10, 64)
+	db.Find(&User)
+	tpl = template.Must(template.ParseFiles("view/user/edit.html"))
+	tpl.Execute(w, FormData{User, ""})
 }
 
-func UserUpdate(c web.C, w http.ResponseWriter, r *http.Request){
-    User := models.User{}
-    User.Id, _ = strconv.ParseInt(c.URLParams["id"], 10, 64)
-    db.Find(&User)
-    User.Name = r.FormValue("Name")
-    if err := models.UserValidate(User); err != nil {
-        var Mess string
-        errs := valval.Errors(err)
-        for _, errInfo := range errs {
-            Mess += fmt.Sprint(errInfo.Error)
-        }
-        tpl = template.Must(template.ParseFiles("view/user/edit.html"))
-        tpl.Execute(w,FormData{User, Mess})
-    } else {
-        db.Save(&User)    
-        http.Redirect(w, r, "/user/index", 301)
-    }
+// UserUpdate は全フィールドの更新
+func UserUpdate(c web.C, w http.ResponseWriter, r *http.Request) {
+	User := models.User{}
+	User.Id, _ = strconv.ParseInt(c.URLParams["id"], 10, 64)
+	db.Find(&User)
+	User.Name = r.FormValue("Name")
+	if err := models.UserValidate(User); err != nil {
+		var Mess string
+		errs := valval.Errors(err)
+		for _, errInfo := range errs {
+			Mess += fmt.Sprint(errInfo.Error)
+		}
+		tpl = template.Must(template.ParseFiles("view/user/edit.html"))
+		tpl.Execute(w, FormData{User, Mess})
+	} else {
+		db.Save(&User) // UPDATE users SET name=Name
+		http.Redirect(w, r, "/user/index", 301)
+	}
 }
 
-func UserDelete(c web.C, w http.ResponseWriter, r *http.Request){
-    User := models.User{}
-    User.Id, _ = strconv.ParseInt(c.URLParams["id"], 10, 64)
-    db.Delete(&User)
-    http.Redirect(w, r, "/user/index", 301)        
+// UserDelete はテーブルからデータを削除する
+func UserDelete(c web.C, w http.ResponseWriter, r *http.Request) {
+	User := models.User{}
+	User.Id, _ = strconv.ParseInt(c.URLParams["id"], 10, 64)
+	db.Delete(&User)
+	http.Redirect(w, r, "/user/index", 301)
 }
 
-// ベーシック認証する処理
+// SuperSecure はベーシック認証する処理
 func SuperSecure(c *web.C, h http.Handler) http.Handler {
-    fn := func(w http.ResponseWriter, r *http.Request) {
-        auth := r.Header.Get("Authorization")
-        if !strings.HasPrefix(auth, "Basic ") {
-            pleaseAuth(w)
-            return
-        }
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		if !strings.HasPrefix(auth, "Basic ") {
+			pleaseAuth(w)
+			return
+		}
 
-        password, err := base64.StdEncoding.DecodeString(auth[6:])
-        if err != nil || string(password) != Password {
-            pleaseAuth(w)
-            return
-        }
+		password, err := base64.StdEncoding.DecodeString(auth[6:])
+		if err != nil || string(password) != Password {
+			pleaseAuth(w)
+			return
+		}
 
-        h.ServeHTTP(w, r)
-    }
-    return http.HandlerFunc(fn)
+		h.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fn)
 }
 
 // Authヘッダを受け付けるための処理
 func pleaseAuth(w http.ResponseWriter) {
-    w.Header().Set("WWW-Authenticate", `Basic realm="Gritter"`)
-    w.WriteHeader(http.StatusUnauthorized)
-    w.Write([]byte("Go away!\n"))
+	w.Header().Set("WWW-Authenticate", `Basic realm="Gritter"`)
+	w.WriteHeader(http.StatusUnauthorized)
+	w.Write([]byte("Go away!\n"))
 }
