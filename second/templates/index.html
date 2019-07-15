@@ -7,6 +7,7 @@
 <body>
     <h2>追加</h2>
     <form method="post" action="/new">
+        <p>名前<input type="text" name="name"></p>
         <p>体力<input type="text" name="health"></p>
         <p>物理防御<input type="text" name="armor"></p>
         <p>攻撃力<input type="text" name="attackDamage"></p>
@@ -15,7 +16,7 @@
     </form>
     <ul>
         {{ range .champions }}
-            <li>体力：{{ .Health }}、物理防御：{{ .Armor }}、攻撃力：{{.AttackDamage}}、攻撃速度：{{.AttackSpeed}}
+            <li>名前：{{.Name}}、体力：{{ .Health }}、物理防御：{{ .Armor }}、攻撃力：{{.AttackDamage}}、攻撃速度：{{.AttackSpeed}}
                 <label><a href="/detail/{{.ID}}">編集</a></label>
                 <label><a href="/delete_check/{{.ID}}">削除</a></label>
             </li>
