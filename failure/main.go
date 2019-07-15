@@ -30,8 +30,7 @@ func ConnectDB() *gorm.DB {
 
 //main()にはルーティングのみ書く
 func main() {
-	db = ConnectDB()
-	defer db.Close()
+
 	user := web.New()
 	goji.Handle("/user/*", user)
 
@@ -47,3 +46,6 @@ func main() {
 	goji.Serve()
 }
 
+func init() {
+	db = ConnectDB()
+}

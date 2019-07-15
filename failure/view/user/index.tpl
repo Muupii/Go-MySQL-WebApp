@@ -7,14 +7,15 @@
 <body>
 
     <p>User Index</p>
-    {{.}}
+    <p><a href="/user/new">new</a></p>
+    {{.User}}
     {{range .}}
     
     <a href="/user/edit/{{.ID}}">{{.Name}}</a>
 
     {{end}}
     
-    <p><a href="/user/new">new</a></p>
+    
     
 </body>
 </html>

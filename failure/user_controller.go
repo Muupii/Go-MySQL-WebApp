@@ -25,12 +25,21 @@ type FormData struct {
 	Mess string
 }
 
+// Test はテストで使う
+type Test struct {
+	Users []models.User
+	User  models.User
+}
+
 // UserIndex はusersテーブルのデータ一覧を出す
 func UserIndex(c web.C, w http.ResponseWriter, r *http.Request) {
 	Users := []models.User{} // [] はスライスを作るときに使う。[]int{1, 3, 5} だったら[1 3 5]のスライスの作成。
-	db.Find(&Users)          // SELECT * FROM users;
+	User := models.User{}
+	db.Find(&Users) // SELECT * FROM users;
+	User.ID = 1
+	db.First(&User)
 	tpl = template.Must(template.ParseFiles("view/user/index.tpl"))
-	tpl.Execute(w, Users)
+	tpl.Execute(w, Test{Users, User})
 }
 
 // UserNew はテーブルに新しいデータを登録できるページの表示
