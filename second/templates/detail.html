@@ -2,15 +2,15 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Hello Golang</title>
+    <title>Champion Detail</title>
 </head>
 <body>
-
-    <form method="post" action="/new">
-        <p>体力<input type="text" name="health" value="{{.Health}}"></p>
-        <p>物理防御<input type="text" name="armor" value="{{.Armor}}"></p>
-        <p>攻撃力<input type="text" name="attackDamage" value="{{.AttackDamage}}"></p>
-        <p>攻撃速度<input type="text" name="attackSpeed" value="{{.AttackSpeed}}"></p>
+    {{.champion}}
+    <form method="post" action="/update/{{.champion.ID}}">
+        <p>体力<input type="text" name="health" value="{{.champion.Health}}"></p>
+        <p>物理防御<input type="text" name="armor" value="{{.champion.Armor}}"></p>
+        <p>攻撃力<input type="text" name="attackDamage" value="{{.champion.AttackDamage}}"></p>
+        <p>攻撃速度<input type="text" name="attackSpeed" value="{{.champion.AttackSpeed}}"></p>
         <p><input type="submit" value="Send"></p>
     </form>
 

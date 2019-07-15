@@ -27,7 +27,7 @@ func ConnectDB() *gorm.DB {
 	PROTOCOL := "tcp(127.0.0.1:3306)"
 	DBNAME := "gopractice"
 
-	CONNECT := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME
+	CONNECT := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?charset=utf8&parseTime=True&loc=Local" // utf8coding対応していなかったため問題が起きてた
 	db, err := gorm.Open(DBMS, CONNECT)
 
 	if err != nil {
@@ -56,7 +56,7 @@ func dbGetAll() []Champion {
 	db := ConnectDB()
 	champions := []Champion{}
 	db.Order("created_at desc").Find(&champions)
-	db.Close()
+	defer db.Close()
 	return champions
 }
 
@@ -65,7 +65,7 @@ func dbGetOne(id int) Champion {
 	db := ConnectDB()
 	champion := Champion{}
 	db.First(&champion, id)
-	db.Close()
+	defer db.Close()
 	return champion
 }
 
@@ -74,12 +74,8 @@ func dbUpdate(id int, health int, armor int, attackDamage int, attackSpeed int) 
 	db := ConnectDB()
 	champion := Champion{}
 	db.First(&champion, id)
-	champion.Health = health
-	champion.Armor = armor
-	champion.AttackDamage = attackDamage
-	champion.AttackSpeed = attackSpeed
-	db.Save(&champion)
-	db.Close()
+	db.Model(&champion).Updates(map[string]interface{}{"Health": health, "Armor": armor, "AttackDamage": attackDamage, "AttackSpeed": attackSpeed})
+	defer db.Close()
 }
 
 // dbDelete はデータ削除
@@ -88,7 +84,7 @@ func dbDelete(id int) {
 	champion := Champion{}
 	db.First(&champion, id)
 	db.Delete(&champion)
-	db.Close()
+	defer db.Close()
 }
 
 func main() {
