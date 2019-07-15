@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello Golang</title>
+</head>
+<body>
+    {{ range .champions }}
+        <li>体力：{{ .Health }}、物理防御：{{ .Armor }}、攻撃力：{{.AttackDamage}}、攻撃速度：{{.AttackSpeed}}
+            <label><a href="/detail/{{.ID}}">編集</a></label>
+            <label><a href="/delete_check/{{.ID}}">削除</a></label>
+        </li>
+    {{end}}
+
+    <form method="post" action="/new">
+        <p>体力<input type="text" name="health"></p>
+        <p>物理防御<input type="text" name="armor"></p>
+        <p>攻撃力<input type="text" name="attackDamage"></p>
+        <p>攻撃速度<input type="text" name="attackSpeed"></p>
+        <p><input type="submit" value="Send"></p>
+    </form>
+
+</body>
+</html>
