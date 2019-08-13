@@ -4,9 +4,9 @@ import "github.com/jinzhu/gorm"
 
 // ConnectDB はDBへの接続
 func ConnectDB() *gorm.DB {
-	DBMS := "mysql"
-	USER := "masayuki"
-	PASS := "aaaa"
+	DBMS := "****"
+	USER := "****"
+	PASS := "****"
 	PROTOCOL := "tcp(127.0.0.1:3306)"
 	DBNAME := "gopractice"
 
